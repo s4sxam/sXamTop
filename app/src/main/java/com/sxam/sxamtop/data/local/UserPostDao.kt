@@ -16,4 +16,8 @@ interface UserPostDao {
 
     @Query("DELETE FROM user_posts")
     suspend fun clearAll()
+
+    // #5 FIX: Added getById to allow NewsRepository to find a user post by its ID
+    @Query("SELECT * FROM user_posts WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): UserPostEntity?
 }
