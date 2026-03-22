@@ -4,7 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- #13 FIX: Permission for worker -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- #13 FIX -->
 
     <application
         android:name=".SXamTopApp"
@@ -42,7 +43,7 @@
         <receiver
             android:name=".worker.BootReceiver"
             android:enabled="true"
-            android:exported="false">
+            android:exported="true"> <!-- #8 FIX: Must be true for BOOT_COMPLETED on Android 12+ -->
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
