@@ -10,16 +10,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sxam.sxamtop.datastore.SettingsDataStore
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sxam.sxamtop.ui.components.NewsCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    settingsDataStore: SettingsDataStore,
     onNavigateToDetail: (String) -> Unit,
-    viewModel: SearchViewModel = viewModel()
+    viewModel: SearchViewModel = hiltViewModel() // #2 FIX: Now cleanly pulls Hilt viewModel
 ) {
     val query by viewModel.query.collectAsState()
     val results by viewModel.results.collectAsState()
