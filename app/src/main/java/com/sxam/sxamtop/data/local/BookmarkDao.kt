@@ -19,4 +19,8 @@ interface BookmarkDao {
 
     @Query("DELETE FROM bookmarks")
     suspend fun clearAll()
+
+    // #5 FIX: Added getById to allow NewsRepository to find a bookmark by its ID
+    @Query("SELECT * FROM bookmarks WHERE id = :id LIMIT 1")
+    suspend fun getById(id: String): BookmarkEntity?
 }
