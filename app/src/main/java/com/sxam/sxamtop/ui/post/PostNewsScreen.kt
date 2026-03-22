@@ -8,27 +8,32 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sxam.sxamtop.ui.theme.TealAccent
-
-val postCategories = listOf("World", "Tech", "Sports", "Finance", "Other")
+import com.sxam.sxamtop.utils.Constants // FIX: Imported Constants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostNewsScreen(viewModel: PostNewsViewModel = viewModel()) {
+fun PostNewsScreen(
+    viewModel: PostNewsViewModel = hiltViewModel() // FIX: Replaced parameterless ViewModel with Hilt
+) {
     val uiState by viewModel.uiState.collectAsState()
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var source by remember { mutableStateOf("") }
     var url by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("World") }
+    var imageUrl by remember { mutableStateOf("") } // FIX: Added state for Image URL
+    
+    // FIX: Using Constants instead of locally declared list
+    var selectedCategory by remember { mutableStateOf(Constants.POST_CATEGORIES.first()) }
     var categoryExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isSubmitted) {
         if (uiState.isSubmitted) {
-            title = ""; description = ""; source = ""; url = ""
-            selectedCategory = "World"
+            // Clear fields on successful submit
+            title = ""; description = ""; source = ""; url = ""; imageUrl = ""
+            selectedCategory = Constants.POST_CATEGORIES.first()
             viewModel.resetState()
         }
     }
@@ -89,7 +94,7 @@ fun PostNewsScreen(viewModel: PostNewsViewModel = viewModel()) {
                     expanded = categoryExpanded,
                     onDismissRequest = { categoryExpanded = false }
                 ) {
-                    postCategories.forEach { cat ->
+                    Constants.POST_CATEGORIES.forEach { cat ->
                         DropdownMenuItem(
                             text = { Text(cat) },
                             onClick = { selectedCategory = cat; categoryExpanded = false }
@@ -101,7 +106,16 @@ fun PostNewsScreen(viewModel: PostNewsViewModel = viewModel()) {
             OutlinedTextField(
                 value = url,
                 onValueChange = { url = it },
-                label = { Text("URL (optional)") },
+                label = { Text("Article URL (optional)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            // FIX: Allow user to attach an image URL to their post
+            OutlinedTextField(
+                value = imageUrl,
+                onValueChange = { imageUrl = it },
+                label = { Text("Image URL (optional)") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -111,7 +125,16 @@ fun PostNewsScreen(viewModel: PostNewsViewModel = viewModel()) {
             }
 
             Button(
-                onClick = { viewModel.submitPost(title, description, source, selectedCategory, url) },
+                onClick = { 
+                    viewModel.submitPost(
+                        title = title, 
+                        description = description, 
+                        source = source, 
+                        category = selectedCategory, 
+                        url = url,
+                        imageUrl = imageUrl
+                    ) 
+                },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = TealAccent)
             ) {
