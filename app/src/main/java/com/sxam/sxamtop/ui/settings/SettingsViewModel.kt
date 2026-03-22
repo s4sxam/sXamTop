@@ -1,18 +1,19 @@
 package com.sxam.sxamtop.ui.settings
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sxam.sxamtop.data.local.AppDatabase
 import com.sxam.sxamtop.data.repository.NewsRepository
 import com.sxam.sxamtop.datastore.SettingsDataStore
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SettingsViewModel(application: Application) : AndroidViewModel(application) {
-
-    val settingsDataStore = SettingsDataStore(application)
-    private val repository = NewsRepository(AppDatabase.getInstance(application))
+@HiltViewModel // 1. FIX: Added Hilt Annotation
+class SettingsViewModel @Inject constructor(
+    private val settingsDataStore: SettingsDataStore, // 2. FIX: Safely injected, no longer manually instantiated
+    private val repository: NewsRepository
+) : ViewModel() { // 3. FIX: Changed from AndroidViewModel to standard ViewModel
 
     val theme: StateFlow<String> = settingsDataStore.themeFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "dark")
