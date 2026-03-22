@@ -12,22 +12,63 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sxam.sxamtop.datastore.SettingsDataStore
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sxam.sxamtop.ui.components.SectionHeader
 import com.sxam.sxamtop.ui.theme.TealAccent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    settingsDataStore: SettingsDataStore,
-    viewModel: SettingsViewModel = viewModel()
+    viewModel: SettingsViewModel = hiltViewModel() // 1. FIX: Uses Hilt ViewModel (settingsDataStore parameter safely removed)
 ) {
     val context = LocalContext.current
     val theme by viewModel.theme.collectAsState()
     val amoledBlack by viewModel.amoledBlack.collectAsState()
     val savedApiKey by viewModel.newsApiKey.collectAsState()
     var apiKeyInput by remember(savedApiKey) { mutableStateOf(savedApiKey) }
+
+    // 2. FIX: Added Dialog states
+    var showClearBookmarksDialog by remember { mutableStateOf(false) }
+    var showClearPostsDialog by remember { mutableStateOf(false) }
+
+    // 3. FIX: Confirmation Dialog logic added to prevent accidental data wipe
+    if (showClearBookmarksDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearBookmarksDialog = false },
+            title = { Text("Clear Bookmarks") },
+            text = { Text("Are you sure you want to delete all your saved bookmarks? This cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = { 
+                    viewModel.clearBookmarks() 
+                    showClearBookmarksDialog = false 
+                }) {
+                    Text("Clear", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearBookmarksDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
+
+    if (showClearPostsDialog) {
+        AlertDialog(
+            onDismissRequest = { showClearPostsDialog = false },
+            title = { Text("Clear User Posts") },
+            text = { Text("Are you sure you want to delete all your created posts? This cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = { 
+                    viewModel.clearUserPosts() 
+                    showClearPostsDialog = false 
+                }) {
+                    Text("Clear", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearPostsDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -107,14 +148,14 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = { viewModel.clearUserPosts() },
+                    onClick = { showClearPostsDialog = true }, // Opens Dialog
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Clear User Posts")
                 }
                 OutlinedButton(
-                    onClick = { viewModel.clearBookmarks() },
+                    onClick = { showClearBookmarksDialog = true }, // Opens Dialog
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
@@ -129,15 +170,15 @@ fun SettingsScreen(
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 ListItem(
                     headlineContent = { Text("Version") },
-                    trailingContent = { Text("1.0.0", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    trailingContent = { Text("1.0.0", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                 ListItem(
                     headlineContent = { Text("GitHub") },
                     trailingContent = { Text("s4sxam", color = TealAccent) },
-                    modifier = Modifier.then(
-                        Modifier.padding(0.dp)
-                    )
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    modifier = Modifier.padding(0.dp)
                 )
                 Button(
                     onClick = {
