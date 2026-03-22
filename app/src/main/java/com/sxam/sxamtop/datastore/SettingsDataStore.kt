@@ -4,7 +4,10 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -14,8 +17,22 @@ class SettingsDataStore(private val context: Context) {
     companion object {
         val THEME_KEY = stringPreferencesKey("theme")
         val AMOLED_BLACK_KEY = booleanPreferencesKey("amoled_black")
-        val NEWS_API_KEY = stringPreferencesKey("news_api_key")
     }
+
+    // Encrypted Shared Preferences for API Keys
+    private val masterKey = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
+
+    private val securePrefs = EncryptedSharedPreferences.create(
+        context,
+        "secure_settings",
+        masterKey,
+        EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+        EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+    )
+
+    private val _newsApiKeyFlow = MutableStateFlow(securePrefs.getString("news_api_key", "") ?: "")
 
     val themeFlow: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[THEME_KEY] ?: "dark"
@@ -25,9 +42,7 @@ class SettingsDataStore(private val context: Context) {
         prefs[AMOLED_BLACK_KEY] ?: true
     }
 
-    val newsApiKeyFlow: Flow<String> = context.dataStore.data.map { prefs ->
-        prefs[NEWS_API_KEY] ?: ""
-    }
+    val newsApiKeyFlow: Flow<String> = _newsApiKeyFlow
 
     suspend fun setTheme(theme: String) {
         context.dataStore.edit { it[THEME_KEY] = theme }
@@ -38,6 +53,7 @@ class SettingsDataStore(private val context: Context) {
     }
 
     suspend fun setNewsApiKey(key: String) {
-        context.dataStore.edit { it[NEWS_API_KEY] = key }
+        securePrefs.edit().putString("news_api_key", key).apply()
+        _newsApiKeyFlow.value = key
     }
 }
