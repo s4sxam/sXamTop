@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.sxam.sxamtop.data.model.NewsItem
 import com.sxam.sxamtop.ui.theme.TextMeta
+import com.sxam.sxamtop.utils.DateUtils
 
 @Composable
 fun NewsCard(item: NewsItem, onBookmark: () -> Unit, onClick: () -> Unit) {
@@ -30,7 +31,7 @@ fun NewsCard(item: NewsItem, onBookmark: () -> Unit, onClick: () -> Unit) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(item.source, style = MaterialTheme.typography.labelSmall)
                 Spacer(modifier = Modifier.weight(1f))
-                Text(item.category, style = MaterialTheme.typography.labelSmall, color = TextMeta)
+                Text("${item.category} • ${DateUtils.timeAgo(item.publishedAt)}", style = MaterialTheme.typography.labelSmall, color = TextMeta)
             }
             
             Spacer(modifier = Modifier.height(12.dp))
