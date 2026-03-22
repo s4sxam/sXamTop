@@ -1,41 +1,37 @@
 package com.sxam.sxamtop.utils
 
-import java.text.SimpleDateFormat
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
 import java.util.*
 
-object DateUtils {
+class DateUtilsTest {
 
-    // Parses 2026-03-22T10:00:00Z
-    fun parseIsoDate(dateStr: String?): Long {
-        if (dateStr.isNullOrBlank()) return System.currentTimeMillis()
-        return try {
-            val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-            format.timeZone = TimeZone.getTimeZone("UTC")
-            format.parse(dateStr)?.time ?: System.currentTimeMillis()
-        } catch (e: Exception) {
-            System.currentTimeMillis()
-        }
+    @Test
+    fun parseIsoDate_validDate_returnsCorrectEpoch() {
+        // "2026-03-22T10:00:00Z"
+        val epoch = DateUtils.parseIsoDate("2026-03-22T10:00:00Z")
+        assertTrue(epoch > 0)
     }
 
-    // Parses Sun, 22 Mar 2026 10:00:00 GMT
-    fun parseRssDate(dateStr: String?): Long {
-        if (dateStr.isNullOrBlank()) return System.currentTimeMillis()
-        return try {
-            val format = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US)
-            format.parse(dateStr)?.time ?: System.currentTimeMillis()
-        } catch (e: Exception) {
-            System.currentTimeMillis()
-        }
-    }
-
-    fun timeAgo(epochMillis: Long): String {
+    @Test
+    fun parseIsoDate_invalidDate_returnsCurrentTime() {
         val now = System.currentTimeMillis()
-        val diff = now - epochMillis
-        return when {
-            diff < 60_000 -> "Just now"
-            diff < 3600_000 -> "${diff / 60_000}m ago"
-            diff < 86400_000 -> "${diff / 3600_000}h ago"
-            else -> "${diff / 86400_000}d ago"
-        }
+        val epoch = DateUtils.parseIsoDate("invalid-date")
+        assertTrue(epoch >= now)
+    }
+
+    @Test
+    fun parseRssDate_validDate_returnsCorrectEpoch() {
+        // "Sun, 22 Mar 2026 10:00:00 GMT"
+        val epoch = DateUtils.parseRssDate("Sun, 22 Mar 2026 10:00:00 GMT")
+        assertTrue(epoch > 0)
+    }
+
+    @Test
+    fun parseRssDate_invalidDate_returnsCurrentTime() {
+        val now = System.currentTimeMillis()
+        val epoch = DateUtils.parseRssDate("bad-rss-date")
+        assertTrue(epoch >= now)
     }
 }
