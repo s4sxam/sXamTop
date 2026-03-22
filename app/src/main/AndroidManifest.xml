@@ -37,9 +37,10 @@
             </intent-filter>
         </receiver>
 
+        <!-- FIX: Updated authority to match Jetpack's default so it can merge properly -->
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.extensions.init"
+            android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
             <meta-data
