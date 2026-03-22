@@ -2,16 +2,12 @@ package com.sxam.sxamtop.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.sxam.sxamtop.R
 
-val JetBrainsMono = FontFamily(
-    Font(R.font.jetbrains_mono_regular, FontWeight.Normal),
-    Font(R.font.jetbrains_mono_bold, FontWeight.Bold)
-)
+// Fixed: Using system Monospace instead of failing on missing R.font files
+val JetBrainsMono = FontFamily.Monospace
 
 val SXamTopTypography = Typography(
     headlineLarge = TextStyle(
