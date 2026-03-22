@@ -10,6 +10,7 @@ data class BookmarkEntity(
     val description: String,
     val source: String,
     val url: String,
+    val imageUrl: String?, // #5 FIX: Image won't be lost on bookmark
     val category: String,
     val publishedAt: Long
 )
