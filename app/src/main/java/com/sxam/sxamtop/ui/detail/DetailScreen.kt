@@ -46,7 +46,7 @@ fun DetailScreen(
                         IconButton(onClick = {
                             val intent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
-                                putText(Intent.EXTRA_TEXT, "${item?.title}\n${item?.url}")
+                                putExtra(Intent.EXTRA_TEXT, "${item?.title}\n${item?.url}")
                             }
                             context.startActivity(Intent.createChooser(intent, "Share"))
                         }) {
