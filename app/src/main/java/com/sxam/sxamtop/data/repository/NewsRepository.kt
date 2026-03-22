@@ -3,6 +3,7 @@ package com.sxam.sxamtop.data.repository
 import com.sxam.sxamtop.data.local.*
 import com.sxam.sxamtop.data.model.NewsItem
 import com.sxam.sxamtop.data.remote.*
+import com.sxam.sxamtop.utils.DateUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -51,7 +52,6 @@ class NewsRepository @Inject constructor(
     suspend fun clearUserPosts() { db.userPostDao().clearAll() }
 }
 
-// Map extensions
 fun NewsCacheEntity.toDomainModel() = NewsItem(id, title, description, source, url, imageUrl, category, publishedAt, false, false)
 fun BookmarkEntity.toDomainModel() = NewsItem(id, title, description, source, url, imageUrl, category, publishedAt, false, true)
 fun UserPostEntity.toDomainModel() = NewsItem(id, title, description, source, url, imageUrl, category, createdAt, true, false)
@@ -67,7 +67,7 @@ fun RssItem.toNewsCacheEntity(): NewsCacheEntity {
         url = link,
         imageUrl = thumbnail?.ifBlank { enclosure?.link },
         category = "Top",
-        publishedAt = System.currentTimeMillis()
+        publishedAt = DateUtils.parseRssDate(pubDate) // #9 FIX
     )
 }
 
@@ -80,6 +80,6 @@ fun NewsApiArticle.toNewsCacheEntity(): NewsCacheEntity {
         url = url ?: "",
         imageUrl = urlToImage,
         category = "World",
-        publishedAt = System.currentTimeMillis()
+        publishedAt = DateUtils.parseIsoDate(publishedAt) // #9 FIX
     )
 }
