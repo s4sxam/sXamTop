@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
-import com.sxam.sxamtop.datastore.SettingsDataStore
 import com.sxam.sxamtop.ui.bookmarks.BookmarksScreen
 import com.sxam.sxamtop.ui.detail.DetailScreen
 import com.sxam.sxamtop.ui.home.HomeScreen
@@ -27,7 +26,7 @@ sealed class Screen(val route: String) {
 }
 
 @Composable
-fun AppNavigation(settingsDataStore: SettingsDataStore) {
+fun AppNavigation() {
     val navController = rememberNavController()
 
     Scaffold(
@@ -39,43 +38,22 @@ fun AppNavigation(settingsDataStore: SettingsDataStore) {
             modifier = Modifier.padding(paddingValues)
         ) {
             composable(Screen.Home.route) {
-                HomeScreen(
-                    settingsDataStore = settingsDataStore,
-                    onNavigateToDetail = { newsId ->
-                        navController.navigate(Screen.Detail.createRoute(newsId))
-                    }
-                )
+                HomeScreen(onNavigateToDetail = { navController.navigate(Screen.Detail.createRoute(it)) })
             }
             composable(Screen.Search.route) {
-                SearchScreen(
-                    settingsDataStore = settingsDataStore,
-                    onNavigateToDetail = { newsId ->
-                        navController.navigate(Screen.Detail.createRoute(newsId))
-                    }
-                )
+                SearchScreen(onNavigateToDetail = { navController.navigate(Screen.Detail.createRoute(it)) })
             }
             composable(Screen.Bookmarks.route) {
-                BookmarksScreen(
-                    onNavigateToDetail = { newsId ->
-                        navController.navigate(Screen.Detail.createRoute(newsId))
-                    }
-                )
+                BookmarksScreen(onNavigateToDetail = { navController.navigate(Screen.Detail.createRoute(it)) })
             }
-            composable(Screen.Post.route) {
-                PostNewsScreen()
-            }
-            composable(Screen.Settings.route) {
-                SettingsScreen(settingsDataStore = settingsDataStore)
-            }
+            composable(Screen.Post.route) { PostNewsScreen() }
+            composable(Screen.Settings.route) { SettingsScreen() }
             composable(
                 route = Screen.Detail.route,
                 arguments = listOf(navArgument("newsId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val newsId = backStackEntry.arguments?.getString("newsId") ?: ""
-                DetailScreen(
-                    newsId = newsId,
-                    onBack = { navController.popBackStack() }
-                )
+            ) { 
+                // #4 FIX: Parameter mismatch resolved (ViewModel uses SavedStateHandle to grab ID securely)
+                DetailScreen(onBack = { navController.popBackStack() })
             }
         }
     }
