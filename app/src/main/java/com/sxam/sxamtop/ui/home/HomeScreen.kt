@@ -22,7 +22,7 @@ import com.sxam.sxamtop.worker.NewsRefreshWorker
 @Composable
 fun HomeScreen(
     onNavigateToDetail: (String) -> Unit,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current.applicationContext
