@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.sxam.sxamtop.datastore.SettingsDataStore
 import com.sxam.sxamtop.ui.components.*
 import com.sxam.sxamtop.ui.theme.TealAccent
 import com.sxam.sxamtop.worker.NewsRefreshWorker
@@ -22,7 +21,6 @@ import com.sxam.sxamtop.worker.NewsRefreshWorker
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    settingsDataStore: SettingsDataStore,
     onNavigateToDetail: (String) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
