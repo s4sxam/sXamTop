@@ -88,8 +88,7 @@ fun PostNewsScreen(
                     readOnly = true,
                     label = { Text("Category") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
-                )
+                    modifier = Modifier.menuAnchor(type = androidx.compose.material3.MenuAnchorType.PrimaryNotEditable).fillMaxWidth()
                 ExposedDropdownMenu(
                     expanded = categoryExpanded,
                     onDismissRequest = { categoryExpanded = false }
