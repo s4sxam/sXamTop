@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <exclude domain="sharedpref" path="secure_settings.xml" />
+    <!-- Exclude DataStore files from cloud backup to protect API keys -->
+    <exclude domain="file" path="datastore/" />
+    <exclude domain="sharedpref" path="." />
 </full-backup-content>
