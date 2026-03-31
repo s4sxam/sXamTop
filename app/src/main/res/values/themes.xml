@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.SXamTop" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Status bar color. -->
+<resources>
+    <!-- Bridge theme: AppCompat base so AAPT resolves, Compose handles all real theming -->
+    <style name="Theme.SXamTop" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
