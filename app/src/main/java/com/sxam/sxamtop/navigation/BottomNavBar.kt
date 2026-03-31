@@ -5,15 +5,13 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.unit.dp // <--- THIS WAS MISSING
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.sxam.sxamtop.ui.theme.TealAccent
 
 data class BottomNavItem(
-    val route: String,
-    val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector
 )
 
 @Composable
@@ -28,6 +26,9 @@ fun BottomNavBar(navController: NavController) {
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    // Hide BottomBar on Detail Screen
+    if (currentRoute?.startsWith("detail") == true) return
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
