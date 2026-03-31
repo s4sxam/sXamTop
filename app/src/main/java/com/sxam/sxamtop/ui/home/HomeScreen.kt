@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,8 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.sxam.sxamtop.datastore.SettingsDataStore
 import com.sxam.sxamtop.ui.components.*
 import com.sxam.sxamtop.ui.theme.TealAccent
@@ -28,7 +27,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current.applicationContext // FIX: Get proper context safely
+    val context = LocalContext.current.applicationContext
 
     LaunchedEffect(Unit) {
         NewsRefreshWorker.schedule(context)
@@ -62,9 +61,10 @@ fun HomeScreen(
                 onSelect = { viewModel.selectCategory(it) }
             )
 
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(uiState.isRefreshing),
-                onRefresh = { viewModel.loadNews(isRefresh = true) }
+            PullToRefreshBox(
+                isRefreshing = uiState.isRefreshing,
+                onRefresh = { viewModel.loadNews(isRefresh = true) },
+                modifier = Modifier.fillMaxSize()
             ) {
                 when {
                     uiState.isLoading -> {
