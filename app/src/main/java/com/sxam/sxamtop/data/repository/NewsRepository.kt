@@ -16,13 +16,18 @@ class NewsRepository(private val db: AppDatabase) {
     private val rssApi = RetrofitInstances.rssApi
     private val newsApi = RetrofitInstances.newsApi
 
+    // In-memory cache so DetailViewModel can look up articles by ID
+    private val newsCache = mutableMapOf<String, NewsItem>()
+
+    suspend fun getNewsById(id: String): NewsItem? = newsCache[id]
+
     fun getBookmarks(): Flow<List<NewsItem>> {
         return db.bookmarkDao().getAllBookmarks().map { entities ->
             entities.map { e ->
                 NewsItem(
                     id = e.id, title = e.title, description = e.description,
-                    source = e.source, url = e.url, category = e.category,
-                    publishedAt = e.publishedAt, isBookmarked = true
+                    source = e.source, url = e.url, imageUrl = e.imageUrl,
+                    category = e.category, publishedAt = e.publishedAt, isBookmarked = true
                 )
             }
         }
@@ -33,8 +38,8 @@ class NewsRepository(private val db: AppDatabase) {
             entities.map { e ->
                 NewsItem(
                     id = "user_${e.id}", title = e.title, description = e.description,
-                    source = e.source, url = e.url, category = e.category,
-                    publishedAt = e.createdAt, isUserPost = true
+                    source = e.source, url = e.url, imageUrl = null,
+                    category = e.category, publishedAt = e.createdAt, isUserPost = true
                 )
             }
         }
@@ -50,10 +55,11 @@ class NewsRepository(private val db: AppDatabase) {
                     description = stripHtml(item.description),
                     source = if (item.author.isNotBlank()) item.author else "Google News",
                     url = item.link,
+                    imageUrl = item.thumbnail ?: item.enclosure?.link,
                     category = "Top",
                     publishedAt = parseRssDate(item.pubDate)
                 )
-            }
+            }.also { items -> newsCache.putAll(items.associateBy { it.id }) }
         } catch (e: Exception) {
             emptyList()
         }
@@ -70,12 +76,12 @@ class NewsRepository(private val db: AppDatabase) {
                     description = article.description?.let { stripHtml(it) } ?: "",
                     source = article.source.name,
                     url = article.url,
+                    imageUrl = null,
                     category = "Top",
                     publishedAt = parseIsoDate(article.publishedAt)
                 )
-            }
+            }.also { items -> newsCache.putAll(items.associateBy { it.id }) }
         } catch (e: HttpException) {
-            // Logs HTTP errors (like 403 quota reached) safely without crashing
             emptyList()
         } catch (e: Exception) {
             emptyList()
@@ -84,13 +90,13 @@ class NewsRepository(private val db: AppDatabase) {
 
     suspend fun addBookmark(item: NewsItem) {
         db.bookmarkDao().insertBookmark(
-            BookmarkEntity(item.id, item.title, item.description, item.source, item.url, item.category, item.publishedAt)
+            BookmarkEntity(item.id, item.title, item.description, item.source, item.url, item.imageUrl, item.category, item.publishedAt)
         )
     }
 
     suspend fun removeBookmark(item: NewsItem) {
         db.bookmarkDao().deleteBookmark(
-            BookmarkEntity(item.id, item.title, item.description, item.source, item.url, item.category, item.publishedAt)
+            BookmarkEntity(item.id, item.title, item.description, item.source, item.url, item.imageUrl, item.category, item.publishedAt)
         )
     }
 
