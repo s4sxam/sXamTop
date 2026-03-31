@@ -14,26 +14,19 @@ val TextSecondary = Color(0xFFAAAAAA)
 val TextMeta = Color(0xFF888888)
 val ChipInactive = Color(0xFF1E1E1E)
 val ChipBorder = Color(0xFF333333)
-val ErrorRed = Color(0xFFCF6679)
 
 private val DarkColorScheme = darkColorScheme(
     primary = TealAccent,
-    onPrimary = Color.Black,
-    secondary = TealAccent,
-    onSecondary = Color.Black,
     background = BackgroundAmoled,
     surface = SurfaceDark,
     onBackground = TextPrimary,
     onSurface = TextPrimary,
     onSurfaceVariant = TextSecondary,
-    error = ErrorRed,
-    outline = ChipBorder,
     surfaceVariant = SurfaceVariantDark
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF0077B6),
-    onPrimary = Color.White,
     background = Color(0xFFF5F5F5),
     surface = Color(0xFFFFFFFF),
     onBackground = Color(0xFF1A1A1A),
@@ -47,16 +40,10 @@ fun SXamTopTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) {
-        DarkColorScheme.copy(
-            background = if (amoledBlack) BackgroundAmoled else BackgroundDark
-        )
+        DarkColorScheme.copy(background = if (amoledBlack) BackgroundAmoled else BackgroundDark)
     } else {
         LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = SXamTopTypography,
-        content = content
-    )
+    MaterialTheme(colorScheme = colorScheme, typography = SXamTopTypography, content = content)
 }
