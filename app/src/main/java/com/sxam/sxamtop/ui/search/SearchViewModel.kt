@@ -7,7 +7,6 @@ import com.sxam.sxamtop.data.local.AppDatabase
 import com.sxam.sxamtop.data.model.NewsItem
 import com.sxam.sxamtop.data.repository.NewsRepository
 import com.sxam.sxamtop.datastore.SettingsDataStore
-import com.sxam.sxamtop.ui.detail.NewsDetailStore
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -38,9 +37,6 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 val rss = repository.fetchRssNews()
                 val api = repository.fetchNewsApi(apiKey)
                 val combined = (rss + api).distinctBy { it.id }.sortedByDescending { it.publishedAt }
-                
-                // FIX: Populate cache for detail screen
-                NewsDetailStore.items.putAll(combined.associateBy { it.id })
                 allNews.value = combined
             } catch (e: Exception) {
                 // Ignore safe errors on background search load
