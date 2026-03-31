@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- App Name -->
     <string name="app_name">sXamTop</string>
+    
+    <!-- Navigation & UI -->
     <string name="home">Home</string>
     <string name="search">Search</string>
     <string name="bookmarks">Bookmarks</string>
     <string name="post">Post</string>
     <string name="settings">Settings</string>
+    
+    <!-- States & Errors -->
     <string name="no_bookmarks">No bookmarks yet</string>
     <string name="no_results">No results found</string>
     <string name="error_loading">Failed to load news</string>
     <string name="retry">Retry</string>
+    
+    <!-- Background Worker Notifications (Added for GNews & Auto-Refresh) -->
+    <string name="default_notification_channel_id">news_refresh</string>
+    <string name="default_notification_channel_name">News Updates</string>
 </resources>
