@@ -4,10 +4,11 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface NewsApiService {
-    @GET("v2/top-headlines")
+    @GET("top-headlines")
     suspend fun getTopHeadlines(
-        @Query("country") country: String = "in",
-        @Query("pageSize") pageSize: Int = 50,
-        @Query("apiKey") apiKey: String
+        @Query("category") category: String = "general",
+        @Query("lang") lang: String = "en",
+        @Query("max") max: Int = 50,
+        @Query("apikey") apikey: String // GNews uses lowercase 'apikey'
     ): NewsApiResponse
 }
