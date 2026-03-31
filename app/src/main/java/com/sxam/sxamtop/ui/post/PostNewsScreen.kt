@@ -89,6 +89,8 @@ fun PostNewsScreen(
                     label = { Text("Category") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryExpanded) },
                     modifier = Modifier.menuAnchor(type = androidx.compose.material3.MenuAnchorType.PrimaryNotEditable).fillMaxWidth()
+                ) // FIX: Added missing closing parenthesis here
+                
                 ExposedDropdownMenu(
                     expanded = categoryExpanded,
                     onDismissRequest = { categoryExpanded = false }
