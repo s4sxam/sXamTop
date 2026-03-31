@@ -1,6 +1,5 @@
 package com.sxam.sxamtop.ui.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,10 +14,7 @@ import com.sxam.sxamtop.ui.theme.*
 val newsCategories = listOf("All", "Top", "World", "Tech", "Sports", "Finance", "User Posts")
 
 @Composable
-fun CategoryChips(
-    selected: String,
-    onSelect: (String) -> Unit
-) {
+fun CategoryChips(selected: String, onSelect: (String) -> Unit) {
     Row(
         modifier = Modifier
             .horizontalScroll(rememberScrollState())
@@ -31,26 +27,17 @@ fun CategoryChips(
                 selected = isSelected,
                 onClick = { onSelect(category) },
                 label = {
-                    Text(
-                        text = category,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (isSelected) Color.Black else TextSecondary
-                    )
+                    Text(category, style = MaterialTheme.typography.bodySmall, 
+                        color = if (isSelected) Color.Black else TextSecondary)
                 },
                 shape = RoundedCornerShape(20.dp),
                 colors = FilterChipDefaults.filterChipColors(
                     containerColor = ChipInactive,
                     selectedContainerColor = TealAccent,
-                    labelColor = TextSecondary,
-                    selectedLabelColor = Color.Black
                 ),
                 border = FilterChipDefaults.filterChipBorder(
-                    enabled = true,
-                    selected = isSelected,
-                    borderColor = ChipBorder,
-                    selectedBorderColor = TealAccent,
-                    borderWidth = 1.dp,
-                    selectedBorderWidth = 1.dp
+                    enabled = true, selected = isSelected,
+                    borderColor = ChipBorder, selectedBorderColor = TealAccent
                 )
             )
         }
