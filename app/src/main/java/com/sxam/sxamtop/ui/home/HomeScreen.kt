@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sxam.sxamtop.ui.components.*
 import com.sxam.sxamtop.ui.theme.TealAccent
 import com.sxam.sxamtop.worker.NewsRefreshWorker
