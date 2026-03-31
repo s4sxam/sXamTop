@@ -9,7 +9,8 @@ import java.util.concurrent.TimeUnit
 object RetrofitInstances {
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BASIC
+        // Set to NONE so your API key isn't leaked in Android Studio Logcat
+        level = HttpLoggingInterceptor.Level.NONE
     }
 
     private val client = OkHttpClient.Builder()
@@ -29,7 +30,7 @@ object RetrofitInstances {
 
     val newsApi: NewsApiService by lazy {
         Retrofit.Builder()
-            .baseUrl("https://newsapi.org/")
+            .baseUrl("https://gnews.io/api/v4/") // GNews integration
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
