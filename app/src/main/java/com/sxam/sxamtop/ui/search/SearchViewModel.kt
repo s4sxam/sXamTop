@@ -1,20 +1,22 @@
 package com.sxam.sxamtop.ui.search
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sxam.sxamtop.data.local.AppDatabase
 import com.sxam.sxamtop.data.model.NewsItem
 import com.sxam.sxamtop.data.repository.NewsRepository
 import com.sxam.sxamtop.datastore.SettingsDataStore
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val db = AppDatabase.getInstance(application)
-    private val repository = NewsRepository(db)
-    private val settingsDataStore = SettingsDataStore(application)
+@OptIn(FlowPreview::class)
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val repository: NewsRepository,
+    private val settingsDataStore: SettingsDataStore
+) : ViewModel() {
 
     private val allNews = MutableStateFlow<List<NewsItem>>(emptyList())
     val query = MutableStateFlow("")
@@ -36,18 +38,14 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 val apiKey = settingsDataStore.newsApiKeyFlow.first()
                 val rss = repository.fetchRssNews()
                 val api = repository.fetchNewsApi(apiKey)
-                val combined = (rss + api).distinctBy { it.id }.sortedByDescending { it.publishedAt }
-                allNews.value = combined
-            } catch (e: Exception) {
-                // Ignore safe errors on background search load
-            }
+                allNews.value = (rss + api).distinctBy { it.id }.sortedByDescending { it.publishedAt }
+            } catch (e: Exception) { }
         }
     }
 
     fun toggleBookmark(item: NewsItem) {
         viewModelScope.launch {
-            if (item.isBookmarked) repository.removeBookmark(item)
-            else repository.addBookmark(item)
+            if (item.isBookmarked) repository.removeBookmark(item) else repository.addBookmark(item)
         }
     }
 }
