@@ -3,20 +3,24 @@ package com.sxam.sxamtop.data.repository
 import com.sxam.sxamtop.data.local.AppDatabase
 import com.sxam.sxamtop.data.local.BookmarkEntity
 import com.sxam.sxamtop.data.model.NewsItem
-import com.sxam.sxamtop.data.remote.RetrofitInstances
+import com.sxam.sxamtop.data.remote.NewsApiService
+import com.sxam.sxamtop.data.remote.RssApiService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class NewsRepository(private val db: AppDatabase) {
+@Singleton
+class NewsRepository @Inject constructor(
+    private val db: AppDatabase,
+    private val rssApi: RssApiService,
+    private val newsApi: NewsApiService
+) {
 
-    private val rssApi = RetrofitInstances.rssApi
-    private val newsApi = RetrofitInstances.newsApi
-
-    // In-memory cache so DetailViewModel can look up articles by ID
     private val newsCache = mutableMapOf<String, NewsItem>()
 
     suspend fun getNewsById(id: String): NewsItem? = newsCache[id]
@@ -116,17 +120,13 @@ class NewsRepository(private val db: AppDatabase) {
         return try {
             val sdf = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH)
             sdf.parse(date)?.time ?: System.currentTimeMillis()
-        } catch (e: Exception) {
-            System.currentTimeMillis()
-        }
+        } catch (e: Exception) { System.currentTimeMillis() }
     }
 
     private fun parseIsoDate(date: String): Long {
         return try {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH)
             sdf.parse(date)?.time ?: System.currentTimeMillis()
-        } catch (e: Exception) {
-            System.currentTimeMillis()
-        }
+        } catch (e: Exception) { System.currentTimeMillis() }
     }
 }
