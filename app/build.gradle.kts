@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.appcompat)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -63,11 +64,10 @@ dependencies {
 
     // DataStore & Security
     implementation(libs.datastore.preferences)
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("androidx.security:security-crypto:1.0.0")
 
-    // Coil & Accompanist
+    // Coil
     implementation(libs.coil.compose)
-    implementation(libs.accompanist.swiperefresh)
 
     // WorkManager
     implementation(libs.workmanager)
