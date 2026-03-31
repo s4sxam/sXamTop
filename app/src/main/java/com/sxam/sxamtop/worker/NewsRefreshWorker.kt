@@ -25,6 +25,7 @@ class NewsRefreshWorker(
             count += rssItems.size
 
             if (apiKey.isNotBlank()) {
+                // Fetching via GNews endpoint
                 val newsItems = RetrofitInstances.newsApi.getTopHeadlines(apikey = apiKey)
                 count += newsItems.articles.size
             }
@@ -41,17 +42,13 @@ class NewsRefreshWorker(
         val channelId = "news_refresh"
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "News Updates",
-                NotificationManager.IMPORTANCE_LOW
-            )
+            val channel = NotificationChannel(channelId, "News Updates", NotificationManager.IMPORTANCE_LOW)
             manager.createNotificationChannel(channel)
         }
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("sXamTop")
+            .setContentTitle("sXamTop News")
             .setContentText("$count new articles available")
             .setAutoCancel(true)
             .build()
@@ -61,14 +58,9 @@ class NewsRefreshWorker(
 
     companion object {
         fun schedule(context: Context) {
-            // FIX: Changed from 5 Minutes to 6 Hours. 
-            // 5 minutes will ban your GNews free API key within 8 hours.
+            // SAFE INTERVAL FOR GNEWS (6 Hours)
             val request = PeriodicWorkRequestBuilder<NewsRefreshWorker>(6, TimeUnit.HOURS)
-                .setConstraints(
-                    Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED)
-                        .build()
-                )
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
