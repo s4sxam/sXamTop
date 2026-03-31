@@ -7,7 +7,6 @@ import com.sxam.sxamtop.data.local.AppDatabase
 import com.sxam.sxamtop.data.model.NewsItem
 import com.sxam.sxamtop.data.repository.NewsRepository
 import com.sxam.sxamtop.datastore.SettingsDataStore
-import com.sxam.sxamtop.ui.detail.NewsDetailStore
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -67,16 +66,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 val apiKey = settingsDataStore.newsApiKeyFlow.first()
                 val rssItems = repository.fetchRssNews()
                 val newsApiItems = repository.fetchNewsApi(apiKey)
-
                 val userPostItems = repository.getUserPosts().first()
 
                 val allItems = (rssItems + newsApiItems + userPostItems)
                     .distinctBy { it.id }
                     .sortedByDescending { it.publishedAt }
                     .map { it.copy(isBookmarked = bookmarkedIds.value.contains(it.id)) }
-
-                // FIX: Populate the detail store so the DetailScreen works!
-                NewsDetailStore.items.putAll(allItems.associateBy { it.id })
 
                 _uiState.update { state ->
                     state.copy(
@@ -110,11 +105,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun toggleBookmark(item: NewsItem) {
         viewModelScope.launch {
-            if (item.isBookmarked) {
-                repository.removeBookmark(item)
-            } else {
-                repository.addBookmark(item)
-            }
+            if (item.isBookmarked) repository.removeBookmark(item)
+            else repository.addBookmark(item)
         }
     }
 
