@@ -1,14 +1,14 @@
 package com.sxam.sxamtop.ui.home
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sxam.sxamtop.data.local.AppDatabase
 import com.sxam.sxamtop.data.model.NewsItem
 import com.sxam.sxamtop.data.repository.NewsRepository
 import com.sxam.sxamtop.datastore.SettingsDataStore
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class HomeUiState(
     val isLoading: Boolean = false,
@@ -19,15 +19,14 @@ data class HomeUiState(
     val error: String? = null
 )
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val db = AppDatabase.getInstance(application)
-    private val repository = NewsRepository(db)
-    private val settingsDataStore = SettingsDataStore(application)
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val repository: NewsRepository,
+    private val settingsDataStore: SettingsDataStore
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
-
     private val bookmarkedIds = MutableStateFlow<Set<String>>(emptySet())
 
     init {
@@ -48,10 +47,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val ids = bookmarkedIds.value
         val updated = _uiState.value.news.map { it.copy(isBookmarked = ids.contains(it.id)) }
         _uiState.update { state ->
-            state.copy(
-                news = updated,
-                filteredNews = filterByCategory(updated, state.selectedCategory)
-            )
+            state.copy(news = updated, filteredNews = filterByCategory(updated, state.selectedCategory))
         }
     }
 
@@ -61,7 +57,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 if (isRefresh) it.copy(isRefreshing = true, error = null)
                 else it.copy(isLoading = true, error = null)
             }
-
             try {
                 val apiKey = settingsDataStore.newsApiKeyFlow.first()
                 val rssItems = repository.fetchRssNews()
@@ -75,20 +70,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
                 _uiState.update { state ->
                     state.copy(
-                        isLoading = false,
-                        isRefreshing = false,
-                        news = allItems,
-                        filteredNews = filterByCategory(allItems, state.selectedCategory),
-                        error = null
+                        isLoading = false, isRefreshing = false, news = allItems,
+                        filteredNews = filterByCategory(allItems, state.selectedCategory), error = null
                     )
                 }
             } catch (e: Exception) {
                 _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        isRefreshing = false,
-                        error = "Failed to load news. Tap to retry."
-                    )
+                    it.copy(isLoading = false, isRefreshing = false, error = "Failed to load news. Tap to retry.")
                 }
             }
         }
@@ -96,25 +84,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun selectCategory(category: String) {
         _uiState.update { state ->
-            state.copy(
-                selectedCategory = category,
-                filteredNews = filterByCategory(state.news, category)
-            )
+            state.copy(selectedCategory = category, filteredNews = filterByCategory(state.news, category))
         }
     }
 
     fun toggleBookmark(item: NewsItem) {
         viewModelScope.launch {
-            if (item.isBookmarked) repository.removeBookmark(item)
-            else repository.addBookmark(item)
+            if (item.isBookmarked) repository.removeBookmark(item) else repository.addBookmark(item)
         }
     }
 
-    private fun filterByCategory(news: List<NewsItem>, category: String): List<NewsItem> {
-        return when (category) {
-            "All" -> news
-            "User Posts" -> news.filter { it.isUserPost }
-            else -> news.filter { it.category.equals(category, ignoreCase = true) }
-        }
+    private fun filterByCategory(news: List<NewsItem>, category: String): List<NewsItem> = when (category) {
+        "All" -> news
+        "User Posts" -> news.filter { it.isUserPost }
+        else -> news.filter { it.category.equals(category, ignoreCase = true) }
     }
 }
